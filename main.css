@@ -111,14 +111,30 @@ body {
 /* Header Styling */
 .headerBar {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 1.5rem 3rem;
-    height: 15vh;
+    padding: 1.5rem 4rem;
+    height: 20vh;
     background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
     border-bottom: 3px solid #f39c12;
     box-shadow: 0 4px 20px rgba(243, 156, 18, 0.3);
     position: relative;
+}
+
+.leftColumn {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+}
+
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1rem;
+    flex: 1;
 }
 
 .logoSection {
@@ -126,67 +142,67 @@ body {
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    height: 10vh;
-    width: 15vh;
+    height: 12vh;
+    width: 18vh;
     flex-shrink: 0;
 }
 
 .titleSection {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
-    flex: 0 0 25%;
 }
 
 .mainTitle {
-    font-size: 5rem;
+    font-size: 6rem;
     font-weight: 900;
     color: #f39c12;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     margin: 0;
+    text-align: left;
 }
 
 .livePricing {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
     font-weight: 600;
     color: #f39c12;
-    letter-spacing: 1px;
-    padding: 0.2rem 0.8rem;
+    letter-spacing: 2px;
+    padding: 0.3rem 1rem;
     border: 2px solid #f39c12;
-    border-radius: 15px;
+    border-radius: 18px;
     background: rgba(243, 156, 18, 0.1);
 }
 
 .rateSection {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     gap: 0.5rem;
-    flex: 0 0 25%;
 }
 
 .rateLabel {
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     font-weight: 600;
     color: #ecf0f1;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-align: right;
 }
 
 #askPrice {
-    font-size: 3.5rem;
+    font-size: 6.5rem;
     font-weight: 800;
     color: #f39c12;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-align: right;
 }
 
 .dateTimeSection {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     gap: 0.3rem;
-    flex: 0 0 20%;
 }
 
 #todaysDate, #currentTime {
@@ -194,11 +210,12 @@ body {
     font-weight: 500;
     color: #bdc3c7;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    text-align: right;
 }
 
 /* Menu Section */
 .priceMenu {
-    height: 85vh;
+    height: 80vh;
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -306,33 +323,37 @@ body {
 /* Responsive adjustments for portrait orientation */
 @media (max-height: 1200px) {
     .headerBar {
-        height: 13vh;
-        padding: 1.2rem 2.5rem;
+        height: 18vh;
+        padding: 1.2rem 3rem;
     }
     
     .priceMenu {
-        height: 87vh;
+        height: 82vh;
     }
     
     .logoSection {
-        height: 8vh;
-        width: 12vh;
+        height: 10vh;
+        width: 15vh;
+    }
+    
+    .leftColumn {
+        gap: 1.5rem;
     }
     
     .mainTitle {
-        font-size: 4.2rem;
+        font-size: 5rem;
     }
     
     .livePricing {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
     }
     
     #askPrice {
-        font-size: 3rem;
+        font-size: 5.5rem;
     }
     
     .rateLabel {
-        font-size: 1.5rem;
+        font-size: 2rem;
     }
     
     #todaysDate, #currentTime {
@@ -358,34 +379,38 @@ body {
 
 @media (max-height: 900px) {
     .headerBar {
-        height: 12vh;
-        padding: 1rem 2rem;
+        height: 16vh;
+        padding: 1rem 2.5rem;
     }
     
     .priceMenu {
-        height: 88vh;
+        height: 84vh;
     }
     
     .logoSection {
-        height: 7vh;
-        width: 10vh;
+        height: 8vh;
+        width: 12vh;
+    }
+    
+    .leftColumn {
+        gap: 1.2rem;
     }
     
     .mainTitle {
-        font-size: 3.8rem;
+        font-size: 4.2rem;
     }
     
     .livePricing {
-        font-size: 1.2rem;
-        padding: 0.2rem 0.6rem;
+        font-size: 1.3rem;
+        padding: 0.2rem 0.7rem;
     }
     
     #askPrice {
-        font-size: 2.8rem;
+        font-size: 4.5rem;
     }
     
     .rateLabel {
-        font-size: 1.3rem;
+        font-size: 1.8rem;
     }
     
     #todaysDate, #currentTime {
@@ -415,12 +440,12 @@ body {
 
 @media (max-height: 768px) {
     .headerBar {
-        height: 10vh;
-        padding: 0.8rem 1.5rem;
+        height: 14vh;
+        padding: 0.8rem 2rem;
     }
     
     .priceMenu {
-        height: 90vh;
+        height: 86vh;
     }
     
     .logoSection {
@@ -428,21 +453,25 @@ body {
         width: 9vh;
     }
     
+    .leftColumn {
+        gap: 1rem;
+    }
+    
     .mainTitle {
-        font-size: 3rem;
+        font-size: 3.2rem;
     }
     
     .livePricing {
-        font-size: 1rem;
+        font-size: 1.1rem;
         padding: 0.1rem 0.5rem;
     }
     
     #askPrice {
-        font-size: 2.2rem;
+        font-size: 3.5rem;
     }
     
     .rateLabel {
-        font-size: 1.1rem;
+        font-size: 1.4rem;
     }
     
     #todaysDate, #currentTime {
