@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Urbanist:wght@100;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>MSS Gold</title>
+    
+  </head>
+  <body>
+    <div class="headerBar">
+      <div class="logoSection"></div>
+      <div class="titleSection">
+        <h1 class="mainTitle">MSS GOLD</h1>
+        <div class="livePricing">LIVE PRICING</div>
+      </div>
+      <div class="rateSection">
+        <div class="rateLabel">Live XAUUSD Rate</div>
+        <div id="askPrice"></div>
+      </div>
+      <div class="dateTimeSection">
+        <div id="todaysDate"></div>
+        <div id="currentTime"></div>
+      </div>
+    </div>
+
+    <div class="priceMenu">
+        <div class="menuItem">
+            <span class="itemName">1 Gram</span>
+            <span class="itemPrice" id="oneGram_bhd"></span>
+        </div>
+        <div class="menuItem">
+            <span class="itemName">2.5 Grams</span>
+            <span class="itemPrice" id="twoHalfGram_bhd"></span>
+        </div>
+        <div class="menuItem">
+            <span class="itemName">5 Grams</span>
+            <span class="itemPrice" id="fiveGram_bhd"></span>
+        </div>
+        <div class="menuItem">
+            <span class="itemName">10 Grams</span>
+            <span class="itemPrice" id="tenGram_bhd"></span>
+        </div>
+        <div class="menuItem">
+            <span class="itemName">20 Grams</span>
+            <span class="itemPrice" id="twentyGram_bhd"></span>
+        </div>
+        <div class="menuItem">
+            <span class="itemName">1 Ounce</span>
+            <span class="itemPrice" id="oneOunce_bhd"></span>
+        </div>
+        <div class="menuItem">
+            <span class="itemName">50 Grams</span>
+            <span class="itemPrice" id="fiftyGram_bhd"></span>
+        </div>
+        <div class="menuItem">
+            <span class="itemName">100 Grams</span>
+            <span class="itemPrice" id="hundredGram_bhd"></span>
+        </div>
+        <div class="menuItem special">
+            <span class="itemName">TT Bar</span>
+            <span class="itemPrice" id="ttPrice_bhd"></span>
+        </div>
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
