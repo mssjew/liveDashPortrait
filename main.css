@@ -92,11 +92,11 @@ html {
 
 body {
     font-family: 'Urbanist', sans-serif;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 30%, #2a2a2a 70%, #0a0a0a 100%);
+    background: #ffffff;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    color: #ffffff;
+    color: #1a1a1a;
     display: flex;
     flex-direction: column;
 }
@@ -114,9 +114,9 @@ body {
     flex-direction: column;
     padding: 1rem 1rem;
     height: 22vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
-    border-bottom: 3px solid #f39c12;
-    box-shadow: 0 4px 20px rgba(243, 156, 18, 0.3);
+    background: #f8f8f8;
+    border-bottom: 3px solid #d47800;
+    box-shadow: 0 4px 20px rgba(212, 120, 0, 0.2);
     position: relative;
 }
 
@@ -149,16 +149,16 @@ body {
 .mainTitle {
     font-size: 3.5rem;
     font-weight: 900;
-    color: #f39c12;
+    color: #d47800;
     letter-spacing: 3px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
     margin: 0;
 }
 
 .livePricing {
     font-size: 1.4rem;
     font-weight: 600;
-    color: #f39c12;
+    color: #d47800;
     letter-spacing: 1px;
     margin-top: 0.2rem;
 }
@@ -173,8 +173,8 @@ body {
 #todaysDate, #currentTime {
     font-size: 1.2rem;
     font-weight: 500;
-    color: #bdc3c7;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    color: #666666;
+    text-shadow: none;
 }
 
 .rateRow {
@@ -189,15 +189,15 @@ body {
 .rateLabel {
     font-size: 2.5rem;
     font-weight: 600;
-    color: #ecf0f1;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    color: #333333;
+    text-shadow: none;
 }
 
 #askPrice {
     font-size: 9rem;
     font-weight: 900;
-    color: #f39c12;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    color: #d47800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     letter-spacing: 2px;
 }
 
@@ -207,7 +207,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 0;
-    background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
+    background: #ffffff;
 }
 
 .menuItem {
@@ -216,14 +216,14 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 3rem;
-    border-bottom: 1px solid rgba(236, 240, 241, 0.2);
+    border-bottom: 1px solid #e0e0e0;
     transition: all 0.2s ease;
     position: relative;
 }
 
 .menuItem:hover {
-    background: rgba(42, 42, 42, 0.5);
-    border-left: 5px solid #f39c12;
+    background: #f5f5f5;
+    border-left: 5px solid #d47800;
     padding-left: 2.5rem;
 }
 
@@ -234,40 +234,40 @@ body {
 .itemName {
     font-size: 4.5rem;
     font-weight: 600;
-    color: #ecf0f1;
+    color: #333333;
     letter-spacing: 1px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: none;
     flex: 0 0 45%;
 }
 
 .itemPrice {
     font-size: 5.5rem;
     font-weight: 800;
-    color: #f39c12;
+    color: #d47800;
     letter-spacing: 1px;
     text-align: right;
     flex: 0 0 50%;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Special Item (TT Bar) */
 .menuItem.special {
-    background: linear-gradient(90deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.2) 50%, rgba(255, 193, 7, 0.1) 100%);
-    border-top: 3px solid #ffc107;
-    border-bottom: 3px solid #ffc107;
-    box-shadow: 0 0 15px rgba(255, 193, 7, 0.3);
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 193, 7, 0.1) 50%, rgba(255, 193, 7, 0.05) 100%);
+    border-top: 3px solid #f4a000;
+    border-bottom: 3px solid #f4a000;
+    box-shadow: 0 0 15px rgba(244, 160, 0, 0.2);
 }
 
 .menuItem.special .itemName {
     font-weight: 800;
     font-size: 4.8rem;
-    color: #ffc107;
+    color: #f4a000;
 }
 
 .menuItem.special .itemPrice {
     font-weight: 900;
     font-size: 6rem;
-    color: #ffc107;
+    color: #f4a000;
 }
 
 /* Price change colors - solid colors only */
@@ -282,11 +282,11 @@ body {
 }
 
 .itemPrice.price-neutral {
-    color: #f39c12 !important;
+    color: #d47800 !important;
 }
 
 .menuItem.special .itemPrice.price-neutral {
-    color: #ffc107 !important;
+    color: #f4a000 !important;
 }
 
 @keyframes priceUp {
@@ -487,7 +487,7 @@ body {
     transform: translateY(-50%);
     width: 4px;
     height: 60%;
-    background: linear-gradient(180deg, transparent 0%, #f39c12 50%, transparent 100%);
+    background: linear-gradient(180deg, transparent 0%, #d47800 50%, transparent 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -497,5 +497,5 @@ body {
 }
 
 .menuItem.special::after {
-    background: linear-gradient(180deg, transparent 0%, #ffc107 50%, transparent 100%);
+    background: linear-gradient(180deg, transparent 0%, #f4a000 50%, transparent 100%);
 }
