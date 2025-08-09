@@ -299,20 +299,22 @@ body {
 .footer-section {
     height: 10vh;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    padding: 0 2rem;
+    padding: 0;
     background: #f8f8f8;
     border-top: 1px solid #e0e0e0;
-    gap: 1.5rem;
 }
 
 .benefit-text {
-    font-size: 2.2rem;
+    font-size: 3.5rem;
     font-weight: 700;
     color: #d47800;
     letter-spacing: 1px;
     text-transform: uppercase;
+    flex: 1;
+    text-align: center;
+    padding: 0 2rem;
 }
 
 /* Benefit image positioning */
@@ -352,7 +354,7 @@ body {
     }
     
     .benefit-text {
-        font-size: 2rem;
+        font-size: 3rem;
     }
     
     .logoSection {
@@ -412,7 +414,7 @@ body {
     }
     
     .benefit-text {
-        font-size: 2rem;
+        font-size: 2.8rem;
     }
     
     .logoSection {
@@ -481,7 +483,7 @@ body {
     }
     
     .benefit-text {
-        font-size: 1.6rem;
+        font-size: 2.2rem;
     }
     
     .logoSection {
