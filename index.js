@@ -75,7 +75,26 @@ async function getClosedMarketPrice() {
         const response = await fetch(
             `https://marketdata.tradermade.com/api/v1/live?currency=XAUUSD&api_key=${API_KEY_STATIC}`
         );
+        
+        // Check if response is OK
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status} ${response.statusText}`);
+        }
+        
+        // Check content type
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            const text = await response.text();
+            throw new Error(`Expected JSON but received: ${text.substring(0, 100)}...`);
+        }
+        
         const data = await response.json();
+        
+        // Validate data structure
+        if (!data.quotes || !data.quotes[0] || !data.quotes[0].mid) {
+            throw new Error("Invalid data structure from API");
+        }
+        
         const originalPrice = data.quotes[0].mid;
         
         // Subtract 20 dollars from the price
@@ -93,7 +112,22 @@ async function getClosedMarketPrice() {
         calculatePrices(adjustedPrice);
         return true;
     } catch (error) {
-        console.error("Error fetching closed market price:", error);
+        console.error("Error fetching closed market price:", error.message);
+        
+        // Display error message to user
+        if (askPriceP) {
+            askPriceP.innerText = "Service Unavailable";
+            askPriceP.className = 'price-error';
+        }
+        
+        // Set all prices to show unavailable
+        weights.forEach(weight => {
+            if (priceElements[weight]) {
+                priceElements[weight].innerText = "---";
+                priceElements[weight].classList.add('price-error');
+            }
+        });
+        
         return false;
     }
 }

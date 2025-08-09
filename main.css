@@ -113,7 +113,7 @@ body {
     display: flex;
     flex-direction: column;
     padding: 1rem 1rem;
-    height: 22vh;
+    height: 20vh;
     background: #f8f8f8;
     border-bottom: 3px solid #d47800;
     box-shadow: 0 4px 20px rgba(212, 120, 0, 0.2);
@@ -203,7 +203,7 @@ body {
 
 /* Menu Section */
 .priceMenu {
-    height: 78vh;
+    height: 70vh;
     display: flex;
     flex-direction: column;
     padding: 0;
@@ -289,6 +289,39 @@ body {
     color: #f4a000 !important;
 }
 
+/* Error state for prices */
+.price-error {
+    color: #666666 !important;
+    font-style: italic;
+}
+
+/* Footer Section */
+.footer-section {
+    height: 10vh;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0 2rem;
+    background: #f8f8f8;
+    border-top: 1px solid #e0e0e0;
+    gap: 1.5rem;
+}
+
+.benefit-text {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #d47800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Benefit image positioning */
+.benefit-image {
+    height: 80%;
+    width: auto;
+    opacity: 0.9;
+}
+
 @keyframes priceUp {
     0% { transform: scale(1); }
     50% { transform: scale(1.03); }
@@ -306,12 +339,20 @@ body {
 /* Responsive adjustments for portrait orientation */
 @media (max-height: 1200px) {
     .headerBar {
-        height: 20vh;
+        height: 18vh;
         padding: 0.8rem 0.8rem;
     }
     
     .priceMenu {
-        height: 80vh;
+        height: 72vh;
+    }
+    
+    .footer-section {
+        height: 10vh;
+    }
+    
+    .benefit-text {
+        font-size: 2rem;
     }
     
     .logoSection {
@@ -358,12 +399,20 @@ body {
 
 @media (max-height: 900px) {
     .headerBar {
-        height: 18vh;
+        height: 16vh;
         padding: 0.6rem 0.6rem;
     }
     
     .priceMenu {
-        height: 82vh;
+        height: 74vh;
+    }
+    
+    .footer-section {
+        height: 10vh;
+    }
+    
+    .benefit-text {
+        font-size: 2rem;
     }
     
     .logoSection {
@@ -419,12 +468,20 @@ body {
 
 @media (max-height: 768px) {
     .headerBar {
-        height: 16vh;
+        height: 15vh;
         padding: 0.5rem 0.5rem;
     }
     
     .priceMenu {
-        height: 84vh;
+        height: 77vh;
+    }
+    
+    .footer-section {
+        height: 8vh;
+    }
+    
+    .benefit-text {
+        font-size: 1.6rem;
     }
     
     .logoSection {
