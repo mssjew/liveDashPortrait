@@ -55,7 +55,7 @@ function calculatePrices(price) {
         oneOunce: (((price + 82) / 31.10347) * 31.10347 * 0.377).toFixed(3),
         fiftyGram: (((price + 77) / 31.10347) * 50 * 0.377).toFixed(3),
         hundredGram: (((price + 41) / 31.10347) * 100 * 0.377).toFixed(3),
-        ttPrice: (((price + 13) / 31.10347) * 116.64 * 0.377).toFixed(3)
+        ttPrice: ((((price + 13) / 31.10347) * 116.64 * 0.377) + 15).toFixed(3)
     };
 
     // Update BHD prices and colors
