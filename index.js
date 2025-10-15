@@ -23,7 +23,7 @@ weights.forEach(weight => {
 });
 
 const API_KEY_STATIC = "fz7uld3FsJ8nMBcbpn1D";
-const API_KEY_STREAMING = "wsQ4Mke4Fhx8lePQI1pQ";
+const API_KEY_STREAMING = "wsjQ0CImecnVl8ycNIsg";
 
 // Format number with commas and decimals if needed
 function formatNumber(num, decimals = 0) {
