@@ -5,12 +5,14 @@ let marketStatus = document.getElementById("marketStatus");
 
 // Price elements for BHD only
 const weights = ['oneGram', 'twoHalfGram', 'fiveGram', 'tenGram', 'twentyGram', 'oneOunce', 'fiftyGram', 'hundredGram', 'ttPrice'];
+const fixedPrices = ['oneKgSilver'];
 
 // Create object to store previous prices for comparison
 let previousPrices = {};
 weights.forEach(weight => {
     previousPrices[weight] = 0;
 });
+
 
 // Create object to store all price elements
 let priceElements = {};
@@ -19,6 +21,14 @@ weights.forEach(weight => {
     // Add initial class
     if (priceElements[weight]) {
         priceElements[weight].classList.add('itemPrice');
+    }
+});
+
+// Handle fixed price elements
+fixedPrices.forEach(item => {
+    priceElements[item] = document.getElementById(`${item}_bhd`);
+    if (priceElements[item]) {
+        priceElements[item].classList.add('itemPrice', 'price-neutral');
     }
 });
 
@@ -43,6 +53,7 @@ function updatePriceColor(element, newPrice, oldPrice) {
         element.classList.add('price-neutral');
     }
 }
+
 
 function calculatePrices(price) {
     // Calculate base BHD prices
@@ -125,6 +136,15 @@ async function getClosedMarketPrice() {
             if (priceElements[weight]) {
                 priceElements[weight].innerText = "---";
                 priceElements[weight].classList.add('price-error');
+            }
+        });
+        
+        // Keep fixed prices showing their fixed values even during errors
+        fixedPrices.forEach(item => {
+            if (priceElements[item]) {
+                priceElements[item].innerText = "710.000";
+                priceElements[item].classList.remove('price-error');
+                priceElements[item].classList.add('price-neutral');
             }
         });
         
