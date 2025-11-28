@@ -34,6 +34,7 @@ fixedPrices.forEach(item => {
 
 const API_KEY_STATIC = "fz7uld3FsJ8nMBcbpn1D";
 const API_KEY_STREAMING = "wsjQ0CImecnVl8ycNIsg";
+const MASSIVE_API_KEY = "KAOHbdXUP9XfaHx61Q80ps3pHbEC10UQ";
 
 // Format number with commas and decimals if needed
 function formatNumber(num, decimals = 0) {
@@ -154,32 +155,76 @@ async function getClosedMarketPrice() {
 
 const connectWS = () => {
     let askPriceHistory = [];
-    socket = new WebSocket("wss://marketdata.tradermade.com/feedadv");
+    socket = new WebSocket('wss://socket.massive.com/forex');
 
     socket.onopen = function (e) {
-        socket.send(`{"userKey":"${API_KEY_STREAMING}", "symbol":"XAUUSD"}`);
+        console.log('WebSocket connected. Sending authentication...');
+        // Send authentication message
+        socket.send(JSON.stringify({
+            "action": "auth",
+            "params": MASSIVE_API_KEY
+        }));
     };
 
-    socket.onmessage = function incoming(data) {
-        let askPrice = data.data.split(",")[3];
-        let askPriceFormatted = askPrice.substring(6, askPrice.length);
-        askPriceP.innerText = formatNumber(Number(askPriceFormatted), 2);
-        askPriceHistory.push(Number(askPriceFormatted));
-
-        if (askPriceHistory.length > 1) {
-            if (askPriceHistory[askPriceHistory.length - 1] > askPriceHistory[askPriceHistory.length - 2]) {
-                askPriceP.className = 'price-up';
-            } else if (askPriceHistory[askPriceHistory.length - 1] < askPriceHistory[askPriceHistory.length - 2]) {
-                askPriceP.className = 'price-down';
+    socket.onmessage = function incoming(event) {
+        try {
+            const messages = JSON.parse(event.data);
+            
+            // Handle array of messages
+            if (Array.isArray(messages)) {
+                messages.forEach(msg => processMessage(msg));
+            } else {
+                processMessage(messages);
             }
-        }
-
-        if (askPriceHistory.length > 3) {
-            askPriceHistory.shift();
-        }
-
-        if (askPriceFormatted) {
-            calculatePrices(Number(askPriceFormatted));
+            
+            function processMessage(msg) {
+                // Handle connection success
+                if (msg.ev === 'status' && msg.status === 'connected') {
+                    console.log('Connected successfully');
+                    return;
+                }
+                
+                // Handle authentication success
+                if (msg.ev === 'status' && msg.status === 'auth_success') {
+                    console.log('Authentication successful. Subscribing to XAU/USD...');
+                    // Subscribe only to XAU/USD forex pair for second aggregates
+                    socket.send(JSON.stringify({"action":"subscribe", "params":"CAS.XAU/USD"}));
+                    return;
+                }
+                
+                // Handle subscription success
+                if (msg.ev === 'status' && msg.message && msg.message.includes('subscribed')) {
+                    console.log('Successfully subscribed to:', msg.message);
+                    return;
+                }
+                
+                // Handle forex aggregate data
+                if (msg.ev === 'CAS' && msg.pair === 'XAU/USD') {
+                    // Use the close price from the aggregate
+                    const askPriceFormatted = msg.c;
+                    
+                    askPriceP.innerText = formatNumber(Number(askPriceFormatted), 2);
+                    askPriceHistory.push(Number(askPriceFormatted));
+                    
+                    if (askPriceHistory.length > 1) {
+                        if (askPriceHistory[askPriceHistory.length - 1] > askPriceHistory[askPriceHistory.length - 2]) {
+                            askPriceP.className = 'price-up';
+                        } else if (askPriceHistory[askPriceHistory.length - 1] < askPriceHistory[askPriceHistory.length - 2]) {
+                            askPriceP.className = 'price-down';
+                        }
+                    }
+                    
+                    if (askPriceHistory.length > 3) {
+                        askPriceHistory.shift();
+                    }
+                    
+                    if (askPriceFormatted) {
+                        calculatePrices(Number(askPriceFormatted));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
         }
     };
 
