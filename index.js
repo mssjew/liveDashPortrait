@@ -143,7 +143,7 @@ async function getClosedMarketPrice() {
         // Keep fixed prices showing their fixed values even during errors
         fixedPrices.forEach(item => {
             if (priceElements[item]) {
-                priceElements[item].innerText = "735.000";
+                priceElements[item].innerText = "750.000";
                 priceElements[item].classList.remove('price-error');
                 priceElements[item].classList.add('price-neutral');
             }
