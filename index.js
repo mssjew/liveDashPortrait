@@ -82,6 +82,88 @@ function calculatePrices(price) {
 let socket;
 let lastPrice = 0;
 
+async function getMassiveAPIPrice() {
+    try {
+        const response = await fetch(
+            `https://api.massive.com/v1/last_quote/currencies/XAU/USD?apiKey=${MASSIVE_API_KEY}`
+        );
+        
+        if (!response.ok) {
+            throw new Error(`Massive API Error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log("Massive API response:", data); // Debug log
+        
+        // Check different possible response structures
+        let price;
+        if (data && data.status === 'success' && data.last && typeof data.last === 'object') {
+            // Massive API structure: last is an object with ask/bid
+            // Use ask price (or average of ask/bid)
+            if (data.last.ask) {
+                price = data.last.ask;
+            } else if (data.last.bid) {
+                price = data.last.bid;
+            } else {
+                throw new Error("No ask or bid price in last object");
+            }
+        } else if (data && data.results && data.results.length > 0 && data.results[0].c) {
+            // If data comes in results array with close price
+            price = data.results[0].c;
+        } else if (data && typeof data.price !== 'undefined') {
+            // If price field exists
+            price = data.price;
+        } else if (data && typeof data.close !== 'undefined') {
+            // If close field exists
+            price = data.close;
+        } else if (data && data.quotes && data.quotes.length > 0) {
+            // If quotes array exists
+            price = data.quotes[0].ask || data.quotes[0].bid || data.quotes[0].mid;
+        } else {
+            console.error("Unexpected Massive API response structure:", data);
+            throw new Error("Could not find price in Massive API response");
+        }
+        
+        // Ensure price is a valid number
+        price = Number(price);
+        if (isNaN(price)) {
+            throw new Error("Price is not a valid number");
+        }
+        
+        askPriceP.innerText = formatNumber(price, 2);
+        askPriceP.classList.remove('price-error'); // Remove error class if present
+        if (price > lastPrice) {
+            askPriceP.className = 'price-up';
+        } else if (price < lastPrice) {
+            askPriceP.className = 'price-down';
+        } else {
+            askPriceP.className = 'price-neutral';
+        }
+        lastPrice = price;
+        
+        calculatePrices(price);
+        
+        // Also remove error class from all price elements
+        weights.forEach(weight => {
+            if (priceElements[weight]) {
+                priceElements[weight].classList.remove('price-error');
+            }
+        });
+        
+        return true;
+    } catch (error) {
+        console.error("Error fetching Massive API price:", error.message);
+        
+        // Show service unavailable message
+        if (askPriceP) {
+            askPriceP.innerText = "Service Unavailable";
+            askPriceP.className = 'price-error';
+        }
+        
+        return false;
+    }
+}
+
 async function getClosedMarketPrice() {
     try {
         const response = await fetch(
@@ -126,35 +208,47 @@ async function getClosedMarketPrice() {
     } catch (error) {
         console.error("Error fetching closed market price:", error.message);
         
-        // Display error message to user
-        if (askPriceP) {
-            askPriceP.innerText = "Service Unavailable";
-            askPriceP.className = 'price-error';
+        // Try Massive API as fallback
+        console.log("Attempting to use Massive API as fallback...");
+        const massiveSuccess = await getMassiveAPIPrice();
+        
+        if (!massiveSuccess) {
+            // Display error message to user if both APIs fail
+            if (askPriceP) {
+                askPriceP.innerText = "Service Unavailable";
+                askPriceP.className = 'price-error';
+            }
+            
+            // Set all prices to show unavailable
+            weights.forEach(weight => {
+                if (priceElements[weight]) {
+                    priceElements[weight].innerText = "---";
+                    priceElements[weight].classList.add('price-error');
+                }
+            });
+            
+            // Keep fixed prices showing their fixed values even during errors
+            fixedPrices.forEach(item => {
+                if (priceElements[item]) {
+                    priceElements[item].innerText = "750.000";
+                    priceElements[item].classList.remove('price-error');
+                    priceElements[item].classList.add('price-neutral');
+                }
+            });
         }
         
-        // Set all prices to show unavailable
-        weights.forEach(weight => {
-            if (priceElements[weight]) {
-                priceElements[weight].innerText = "---";
-                priceElements[weight].classList.add('price-error');
-            }
-        });
-        
-        // Keep fixed prices showing their fixed values even during errors
-        fixedPrices.forEach(item => {
-            if (priceElements[item]) {
-                priceElements[item].innerText = "750.000";
-                priceElements[item].classList.remove('price-error');
-                priceElements[item].classList.add('price-neutral');
-            }
-        });
-        
-        return false;
+        return massiveSuccess;
     }
 }
 
 const connectWS = () => {
     let askPriceHistory = [];
+    
+    // First, immediately try to get a price from the API while WebSocket connects
+    getMassiveAPIPrice().catch(err => {
+        console.error('Initial API call failed:', err);
+    });
+    
     socket = new WebSocket('wss://socket.massive.com/forex');
 
     socket.onopen = function (e) {
@@ -230,36 +324,107 @@ const connectWS = () => {
 
     socket.onerror = function (error) {
         console.error(`WebSocket Error: ${error.message}`);
+        // Use Massive API as fallback during WebSocket errors
+        getMassiveAPIPrice().then(success => {
+            if (!success) {
+                console.error('Fallback to Massive API also failed');
+            }
+        });
         setTimeout(connectWS, 5000);
     };
 
-    socket.onclose = function() {
-        console.log('WebSocket Connection Closed. Reconnecting...');
+    socket.onclose = function(event) {
+        console.log('WebSocket Connection Closed. Code:', event.code, 'Reason:', event.reason);
+        // If service is unavailable (1006 or specific close codes), use API fallback
+        if (event.code === 1006 || event.reason?.includes('unavailable')) {
+            console.log('Service unavailable, using Massive API fallback');
+            getMassiveAPIPrice().then(success => {
+                if (!success) {
+                    console.error('Fallback to Massive API also failed');
+                }
+            });
+        }
         setTimeout(connectWS, 5000);
     };
 };
 
+// Check if market is closed (weekends or outside trading hours)
+function isMarketClosed() {
+    const now = new Date();
+    const day = now.getDay();
+    const hours = now.getUTCHours();
+    
+    // Market is closed on weekends
+    if (day === 0 || day === 6) {
+        return true;
+    }
+    
+    // Forex market is generally closed from Friday 10 PM UTC to Sunday 10 PM UTC
+    // Also closed during certain hours for maintenance
+    if (day === 5 && hours >= 22) { // Friday after 10 PM UTC
+        return true;
+    }
+    if (day === 0 && hours < 22) { // Sunday before 10 PM UTC
+        return true;
+    }
+    
+    return false;
+}
+
 // Initialize the application
 async function initializeApp() {
-    const currentDay = new Date().getDay();
-    const isWeekend = currentDay === 0 || currentDay === 6;
+    const marketClosed = isMarketClosed();
 
-    if (isWeekend) {
-        // Initial fetch for closed market
-        await getClosedMarketPrice();
-        // Set up polling for closed market updates (every 5 minutes)
-        setInterval(getClosedMarketPrice, 300000);
+    if (marketClosed) {
+        console.log("Market is closed. Using API for price updates.");
+        // Initial fetch for closed market - try Massive API first
+        const success = await getMassiveAPIPrice();
+        if (!success) {
+            // If Massive API fails, try the other API
+            await getClosedMarketPrice();
+        }
+        
+        // Set up polling for closed market updates (every minute)
+        setInterval(async () => {
+            const success = await getMassiveAPIPrice();
+            if (!success) {
+                await getClosedMarketPrice();
+            }
+        }, 60000);
     } else {
+        console.log("Market is open. Attempting WebSocket connection.");
         if (marketStatus) {  // Check if element exists before updating
             marketStatus.innerHTML = "";
         }
+        
+        // Try connecting to WebSocket
         connectWS();
-        // Check WebSocket connection every 2 minutes
+        
+        // Immediately try API as well in case WebSocket fails
+        setTimeout(() => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.log('WebSocket not connected after 5 seconds, using Massive API');
+                getMassiveAPIPrice();
+            }
+        }, 5000);
+        
+        // Check WebSocket connection every 30 seconds and use API if not connected
         setInterval(() => {
             if (!socket || socket.readyState !== WebSocket.OPEN) {
-                connectWS();
+                console.log('WebSocket not connected, attempting to use Massive API');
+                getMassiveAPIPrice().then(success => {
+                    if (!success) {
+                        console.error('Both WebSocket and API are unavailable');
+                        // Try the other API as last resort
+                        getClosedMarketPrice();
+                    }
+                });
+                // Also try to reconnect WebSocket
+                if (!socket || socket.readyState === WebSocket.CLOSED) {
+                    connectWS();
+                }
             }
-        }, 120000);
+        }, 30000);
     }
 }
 
