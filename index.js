@@ -5,7 +5,8 @@ let marketStatus = document.getElementById("marketStatus");
 
 // Price elements for BHD only
 const weights = ['oneGram', 'twoHalfGram', 'fiveGram', 'tenGram', 'twentyGram', 'oneOunce', 'fiftyGram', 'hundredGram', 'ttPrice'];
-const fixedPrices = ['oneKgSilver'];
+const fixedPrices = [];
+let silverPriceElements = ['oneKgSilver'];
 
 // Create object to store previous prices for comparison
 let previousPrices = {};
@@ -24,17 +25,62 @@ weights.forEach(weight => {
     }
 });
 
-// Handle fixed price elements
-fixedPrices.forEach(item => {
+// Handle silver price elements
+silverPriceElements.forEach(item => {
     priceElements[item] = document.getElementById(`${item}_bhd`);
     if (priceElements[item]) {
         priceElements[item].classList.add('itemPrice', 'price-neutral');
     }
 });
 
+// Store previous silver price for comparison
+let previousSilverPrice = 0;
+
+function updateSilverPriceFromWS(silverPrice, silverPriceHistory) {
+    try {
+        // Apply the same formula as in getSilverPrice()
+        var silverPriceNum = parseFloat(silverPrice) + PRICE_CORRECTOR;
+        var silverPriceDecimal = Math.round(silverPriceNum * 100) / 100;
+        
+        // Convert from troy ounce to 1KG: multiply by 32.1507
+        // Then convert to BD: multiply by 0.377
+        // Add 50 BD markup
+        var silverPricePerKg = silverPriceDecimal * 32.1507;
+        var silverPriceBD = (silverPricePerKg * 0.377) + 50;
+        
+        // Update silver price element exactly like gold is handled
+        const silverElement = priceElements['oneKgSilver'];
+        if (silverElement) {
+            silverElement.innerText = formatNumber(silverPriceBD, 3);
+            silverPriceHistory.push(silverPriceBD);
+            
+            if (silverPriceHistory.length > 1) {
+                if (silverPriceHistory[silverPriceHistory.length - 1] > silverPriceHistory[silverPriceHistory.length - 2]) {
+                    silverElement.className = 'itemPrice price-up';
+                } else if (silverPriceHistory[silverPriceHistory.length - 1] < silverPriceHistory[silverPriceHistory.length - 2]) {
+                    silverElement.className = 'itemPrice price-down';
+                } else {
+                    silverElement.className = 'itemPrice price-neutral';
+                }
+            }
+            
+            if (silverPriceHistory.length > 3) {
+                silverPriceHistory.shift();
+            }
+        }
+        
+        console.log('Silver price updated via WebSocket:', silverPrice, '-> BD:', silverPriceBD);
+        return true;
+    } catch (error) {
+        console.error("Error updating silver price from WebSocket:", error.message);
+        return false;
+    }
+}
+
 const API_KEY_STATIC = "fz7uld3FsJ8nMBcbpn1D";
 const API_KEY_STREAMING = "wsjQ0CImecnVl8ycNIsg";
 const MASSIVE_API_KEY = "KAOHbdXUP9XfaHx61Q80ps3pHbEC10UQ";
+const PRICE_CORRECTOR = 0; // Add any price adjustment if needed
 
 // Format number with commas and decimals if needed
 function formatNumber(num, decimals = 0) {
@@ -81,6 +127,51 @@ function calculatePrices(price) {
 
 let socket;
 let lastPrice = 0;
+
+async function getSilverPrice() {
+    try {
+        const response = await fetch(`https://api.massive.com/v1/last_quote/currencies/XAG/USD?apiKey=${MASSIVE_API_KEY}`);
+        
+        if (!response.ok) {
+            throw new Error(`Silver API Error: ${response.status} ${response.statusText}`);
+        }
+        
+        const apiPrice = await response.json();
+        console.log("Silver API response:", apiPrice);
+        
+        // Calculate silver price using the provided formula
+        var silverPrice = (apiPrice.last.bid + apiPrice.last.ask) / 2;
+        var silverPriceNum = parseFloat(silverPrice) + PRICE_CORRECTOR;
+        var silverPriceDecimal = Math.round(silverPriceNum * 100) / 100;
+        
+        // Convert from troy ounce to 1KG: multiply by 32.1507
+        // Then convert to BD: multiply by 0.377
+        // Add 50 BD markup
+        var silverPricePerKg = silverPriceDecimal * 32.1507;
+        var silverPriceBD = (silverPricePerKg * 0.377) + 50;
+        
+        // Update silver price element
+        const silverElement = priceElements['oneKgSilver'];
+        if (silverElement) {
+            silverElement.innerText = formatNumber(silverPriceBD, 3);
+            updatePriceColor(silverElement, silverPriceBD, previousSilverPrice);
+            previousSilverPrice = silverPriceBD;
+        }
+        
+        return true;
+    } catch (error) {
+        console.error("Error fetching silver price:", error.message);
+        
+        // Show error state for silver price
+        const silverElement = priceElements['oneKgSilver'];
+        if (silverElement) {
+            silverElement.innerText = "Service Unavailable";
+            silverElement.classList.add('price-error');
+        }
+        
+        return false;
+    }
+}
 
 async function getMassiveAPIPrice() {
     try {
@@ -227,12 +318,16 @@ async function getClosedMarketPrice() {
                 }
             });
             
-            // Keep fixed prices showing their fixed values even during errors
-            fixedPrices.forEach(item => {
-                if (priceElements[item]) {
-                    priceElements[item].innerText = "750.000";
-                    priceElements[item].classList.remove('price-error');
-                    priceElements[item].classList.add('price-neutral');
+            // Keep silver price available even during gold API errors
+            silverPriceElements.forEach(item => {
+                if (priceElements[item] && !priceElements[item].classList.contains('price-error')) {
+                    // Only show error if silver API also fails
+                    getSilverPrice().catch(() => {
+                        if (priceElements[item]) {
+                            priceElements[item].innerText = "Service Unavailable";
+                            priceElements[item].classList.add('price-error');
+                        }
+                    });
                 }
             });
         }
@@ -243,10 +338,16 @@ async function getClosedMarketPrice() {
 
 const connectWS = () => {
     let askPriceHistory = [];
+    let silverPriceHistory = [];
     
     // First, immediately try to get a price from the API while WebSocket connects
     getMassiveAPIPrice().catch(err => {
         console.error('Initial API call failed:', err);
+    });
+    
+    // Also get initial silver price
+    getSilverPrice().catch(err => {
+        console.error('Initial silver API call failed:', err);
     });
     
     socket = new WebSocket('wss://socket.massive.com/forex');
@@ -280,9 +381,10 @@ const connectWS = () => {
                 
                 // Handle authentication success
                 if (msg.ev === 'status' && msg.status === 'auth_success') {
-                    console.log('Authentication successful. Subscribing to XAU/USD...');
-                    // Subscribe only to XAU/USD forex pair for second aggregates
+                    console.log('Authentication successful. Subscribing to XAU/USD and XAG/USD...');
+                    // Subscribe to both gold and silver forex pairs for second aggregates
                     socket.send(JSON.stringify({"action":"subscribe", "params":"CAS.XAU/USD"}));
+                    socket.send(JSON.stringify({"action":"subscribe", "params":"CAS.XAG/USD"}));
                     return;
                 }
                 
@@ -292,7 +394,7 @@ const connectWS = () => {
                     return;
                 }
                 
-                // Handle forex aggregate data
+                // Handle forex aggregate data for gold (XAU/USD)
                 if (msg.ev === 'CAS' && msg.pair === 'XAU/USD') {
                     // Use the close price from the aggregate
                     const askPriceFormatted = msg.c;
@@ -316,6 +418,17 @@ const connectWS = () => {
                         calculatePrices(Number(askPriceFormatted));
                     }
                 }
+                
+                // Handle forex aggregate data for silver (XAG/USD)
+                if (msg.ev === 'CAS' && msg.pair === 'XAG/USD') {
+                    // Use the close price from the aggregate
+                    const silverPrice = msg.c;
+                    console.log('Received silver WebSocket data:', msg);
+                    
+                    if (silverPrice) {
+                        updateSilverPriceFromWS(Number(silverPrice), silverPriceHistory);
+                    }
+                }
             }
         } catch (error) {
             console.error('Error parsing WebSocket message:', error);
@@ -330,6 +443,10 @@ const connectWS = () => {
                 console.error('Fallback to Massive API also failed');
             }
         });
+        // Also try to get silver price via API
+        getSilverPrice().catch(err => {
+            console.error('Silver API fallback also failed:', err);
+        });
         setTimeout(connectWS, 5000);
     };
 
@@ -342,6 +459,10 @@ const connectWS = () => {
                 if (!success) {
                     console.error('Fallback to Massive API also failed');
                 }
+            });
+            // Also get silver price via API
+            getSilverPrice().catch(err => {
+                console.error('Silver API fallback also failed:', err);
             });
         }
         setTimeout(connectWS, 5000);
@@ -384,12 +505,17 @@ async function initializeApp() {
             await getClosedMarketPrice();
         }
         
+        // Also get initial silver price
+        await getSilverPrice();
+        
         // Set up polling for closed market updates (every minute)
         setInterval(async () => {
             const success = await getMassiveAPIPrice();
             if (!success) {
                 await getClosedMarketPrice();
             }
+            // Also update silver price
+            await getSilverPrice();
         }, 60000);
     } else {
         console.log("Market is open. Attempting WebSocket connection.");
@@ -406,6 +532,8 @@ async function initializeApp() {
                 console.log('WebSocket not connected after 5 seconds, using Massive API');
                 getMassiveAPIPrice();
             }
+            // Also get silver price
+            getSilverPrice();
         }, 5000);
         
         // Check WebSocket connection every 30 seconds and use API if not connected
@@ -424,6 +552,8 @@ async function initializeApp() {
                     connectWS();
                 }
             }
+            // Update silver price every 30 seconds as well
+            getSilverPrice();
         }, 30000);
     }
 }
@@ -452,3 +582,9 @@ function updateDateTime() {
 updateDateTime();
 setInterval(updateDateTime, 1000);
 initializeApp();
+
+// Set up auto-refresh every 5 minutes to reload the entire page
+setInterval(() => {
+    console.log("Auto-refreshing page every 5 minutes...");
+    window.location.reload();
+}, 5 * 60 * 1000); // 5 minutes in milliseconds
