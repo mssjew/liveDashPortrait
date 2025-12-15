@@ -79,7 +79,7 @@ function updateSilverPriceFromWS(silverPrice, silverPriceHistory) {
 
 const API_KEY_STATIC = "fz7uld3FsJ8nMBcbpn1D";
 const API_KEY_STREAMING = "wsjQ0CImecnVl8ycNIsg";
-const MASSIVE_API_KEY = "KAOHbdXUP9XfaHx61Q80ps3pHbEC10UQ";
+const MASSIVE_API_KEY = "sSGPCXG_vSX4FtMsfS3qPo4W2RZMs98w";
 const PRICE_CORRECTOR = 0; // Add any price adjustment if needed
 
 // Format number with commas and decimals if needed
