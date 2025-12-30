@@ -46,7 +46,7 @@ function updateSilverPriceFromWS(silverPrice, silverPriceHistory) {
         // Then convert to BD: multiply by 0.377
         // Add 50 BD markup
         var silverPricePerKg = silverPriceDecimal * 32.1507;
-        var silverPriceBD = (silverPricePerKg * 0.377) + 50;
+        var silverPriceBD = (silverPricePerKg * 0.377) + 110;
         
         // Update silver price element exactly like gold is handled
         const silverElement = priceElements['oneKgSilver'];
@@ -148,7 +148,7 @@ async function getSilverPrice() {
         // Then convert to BD: multiply by 0.377
         // Add 50 BD markup
         var silverPricePerKg = silverPriceDecimal * 32.1507;
-        var silverPriceBD = (silverPricePerKg * 0.377) + 50;
+        var silverPriceBD = (silverPricePerKg * 0.377) + 110;
         
         // Update silver price element
         const silverElement = priceElements['oneKgSilver'];
